@@ -37,9 +37,14 @@ namespace Felt_32_European_32_Traditional
     public partial class MainForm : Form, IPdBets
     {
         /// <summary>
-        /// The default number color list.
+        /// The default number back color list.
         /// </summary>
-        private List<Color> defaultNumberColorList = new List<Color>();
+        private List<Color> defaultNumberBackColorList = new List<Color>();
+
+        /// <summary>
+        /// The form buttons dictionary.
+        /// </summary>
+        private Dictionary<Button, Color> formButtonsDictionary = new Dictionary<Button, Color>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Felt_32_European_32_Traditional.MainForm"/> class.
@@ -52,12 +57,21 @@ namespace Felt_32_European_32_Traditional
             // Set default number color list
             for (int i = 0; i < 37; i++)
             {
+                // Set current number button
+                Button numberButton = (Button)this.Controls.Find("button" + i.ToString(), true)[0];
+
                 // Set number color
-                Color numberColor = this.Controls.Find("button" + i.ToString(), true)[0].BackColor;
+                Color numberColor = numberButton.BackColor;
 
                 // Add to default number color list
-                this.defaultNumberColorList.Add(numberColor);
+                this.defaultNumberBackColorList.Add(numberColor);
+
+                // Add to form buttons dictionary
+                this.formButtonsDictionary.Add(numberButton, numberColor);
             }
+
+            // Add undo button to form buttons dictionary
+            this.formButtonsDictionary.Add(this.undoButton, Color.Navy);
         }
 
         /// <summary>
@@ -143,6 +157,22 @@ namespace Felt_32_European_32_Traditional
 
             // Set fore color to black
             senderButton.ForeColor = Color.Black;
+
+            /* Handle sticky color */
+
+            // Iterate buttons
+            foreach (KeyValuePair<Button, Color> formButton in this.formButtonsDictionary)
+            {
+                // Test for reference equality
+                if (!object.ReferenceEquals(senderButton, formButton.Key))
+                {
+                    // Set back color to default
+                    formButton.Key.BackColor = formButton.Value;
+
+                    // Set fore color to white
+                    formButton.Key.ForeColor = Color.White;
+                }
+            }
         }
 
         /// <summary>
@@ -162,7 +192,7 @@ namespace Felt_32_European_32_Traditional
             if (int.TryParse(senderButton.Name.Replace("button", string.Empty), out lastNumber))
             {
                 // Set back color for current number
-                senderButton.BackColor = this.defaultNumberColorList[lastNumber];
+                senderButton.BackColor = this.defaultNumberBackColorList[lastNumber];
             }
             else
             {
